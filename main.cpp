@@ -65,7 +65,7 @@ void CreateTriangle()
 void CreateOBJ()
 {
     Mesh *obj1 = new Mesh();
-    bool loaded = obj1->CreateMeshFromOBJ("Models/test.obj");
+    bool loaded = obj1->CreateMeshFromOBJ("Models/suzanne.obj");
     if (loaded) 
     {
         for (int i = 0; i < 10; i++)
@@ -117,8 +117,8 @@ int main()
 
     GLuint uniformModel = 0, uniformProjection = 0, uniformView = 0;
 
-    glm::vec3 cameraPos = glm::vec3(1.0f, 0.5f, 2.0f);
-    glm::vec3 cameraTarget = glm::vec3(0.0f, -0.3f, -1.0f);
+    glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 0.0f);
+    glm::vec3 cameraTarget = glm::vec3(0.0f, 0.0f, -1.0f);
     glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
 
     glm::vec3 cameraDirection = glm::normalize(cameraTarget - cameraPos);
@@ -144,11 +144,11 @@ int main()
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
     int width, height, nrChannels;
-    unsigned char* data = stbi_load("Textures/cloth.jpg", &width, &height, &nrChannels, 0);
+    unsigned char* data = stbi_load("Textures/uvmap.png", &width, &height, &nrChannels, 0);
 
     if (data)
     {
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
         glGenerateMipmap(GL_TEXTURE_2D);
     }
     else
