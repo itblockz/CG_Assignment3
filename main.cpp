@@ -27,6 +27,8 @@ std::vector<Shader> shaderList;
 
 float yaw = -90.0f, pitch = 0.0f;
 
+glm::vec3 lightColour = glm::vec3(0.0f, 1.0f, 1.0f);
+
 //Vertex Shader
 static const char* vShader = "Shaders/shader.vert";
 
@@ -238,6 +240,9 @@ int main()
         uniformModel = shaderList[0].GetUniformLocation("model");
         uniformProjection = shaderList[0].GetUniformLocation("projection");
         uniformView = shaderList[0].GetUniformLocation("view");
+
+        //light
+        glUniform3fv(shaderList[0].GetUniformLocation("lightColour"), 1, (GLfloat*) &lightColour);
         
         for (int i = 0; i < 10; i++)
         {
