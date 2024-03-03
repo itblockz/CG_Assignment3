@@ -23,17 +23,24 @@ const GLint WIDTH = 800, HEIGHT = 600;
 
 Window mainWindow;
 std::vector<Mesh*> meshList;
-std::vector<Shader> shaderList;
+std::vector<Shader*> shaderList;
 
 float yaw = -90.0f, pitch = 0.0f;
 
-glm::vec3 lightColour = glm::vec3(0.0f, 1.0f, 1.0f);
+glm::vec3 lightColour = glm::vec3(1.0f, 1.0f, 1.0f);
+glm::vec3 lightPos = glm::vec3(5.0f, 5.0f, 0.0f);
 
 //Vertex Shader
 static const char* vShader = "Shaders/shader.vert";
 
 //Fragment Shader
 static const char* fShader = "Shaders/shader.frag";
+
+//Vertex Shader
+static const char* lightVShader = "Shaders/lightShader.vert";
+
+//Fragment Shader
+static const char* lightFShader = "Shaders/lightShader.frag";
 
 void CreateTriangle()
 {
@@ -76,13 +83,25 @@ void CreateOBJ()
         }
     }
     else std::cout << "Failed to load model" << std::endl;
+
+    Mesh *obj2 = new Mesh();
+    loaded = obj2->CreateMeshFromOBJ("Models/cube.obj");
+    if (loaded) 
+    {
+        meshList.push_back(obj2);
+    }
+    else std::cout << "Failed to load model" << std::endl;
 }
 
 void CreateShaders()
 {
     Shader* shader1 = new Shader();
     shader1->CreateFromFiles(vShader, fShader);
-    shaderList.push_back(*shader1);
+    shaderList.push_back(shader1);
+    
+    Shader* shader2 = new Shader();
+    shader2->CreateFromFiles(lightVShader, lightFShader);
+    shaderList.push_back(shader2);
 }
 
 void checkMouse() {
@@ -236,13 +255,15 @@ int main()
         // view = glm::lookAt(cameraPos, cameraPos + cameraDirection, cameraUp);
 
         //draw here
-        shaderList[0].UseShader();
-        uniformModel = shaderList[0].GetUniformLocation("model");
-        uniformProjection = shaderList[0].GetUniformLocation("projection");
-        uniformView = shaderList[0].GetUniformLocation("view");
+        shaderList[0]->UseShader();
+        uniformModel = shaderList[0]->GetUniformLocation("model");
+        uniformProjection = shaderList[0]->GetUniformLocation("projection");
+        uniformView = shaderList[0]->GetUniformLocation("view");
 
         //light
-        glUniform3fv(shaderList[0].GetUniformLocation("lightColour"), 1, (GLfloat*) &lightColour);
+        glUniform3fv(shaderList[0]->GetUniformLocation("lightColour"), 1, (GLfloat*) &lightColour);
+        glUniform3fv(shaderList[0]->GetUniformLocation("lightPos"), 1, (GLfloat*) &lightPos);
+        glUniform3fv(shaderList[0]->GetUniformLocation("viewPos"), 1, (GLfloat*) &cameraPos);
         
         for (int i = 0; i < 10; i++)
         {
@@ -260,6 +281,22 @@ int main()
             glBindTexture(GL_TEXTURE_2D, texture);
             meshList[i]->RenderMesh();
         }
+
+        shaderList[1]->UseShader();
+        uniformModel = shaderList[1]->GetUniformLocation("model");
+        uniformProjection = shaderList[1]->GetUniformLocation("projection");
+        uniformView = shaderList[1]->GetUniformLocation("view");
+
+        glUniform3fv(shaderList[1]->GetUniformLocation("lightColour"), 1, (GLfloat*) &lightColour);
+
+        glm::mat4 model (1.0f);
+        model = glm::translate(model, lightPos);
+        
+        glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+        glUniformMatrix4fv(uniformProjection, 1, GL_FALSE, glm::value_ptr(projection));
+        glUniformMatrix4fv(uniformView, 1, GL_FALSE, glm::value_ptr(view));
+
+        meshList[10]->RenderMesh();
 
         glUseProgram(0);
         //end draw
